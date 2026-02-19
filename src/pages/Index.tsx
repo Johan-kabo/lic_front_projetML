@@ -1,25 +1,18 @@
+import { useState } from "react";
 import TopBar from "@/components/TopBar";
-import StatsRow from "@/components/StatsRow";
-import FraudChart from "@/components/FraudChart";
-import RiskDistribution from "@/components/RiskDistribution";
-import TransactionFeed from "@/components/TransactionFeed";
+import DashboardTab from "@/components/DashboardTab";
+import PredictionTab from "@/components/PredictionTab";
+import AssistantTab from "@/components/AssistantTab";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+
   return (
     <div className="min-h-screen bg-background">
-      <TopBar />
-      <div className="p-6 space-y-6">
-        <StatsRow />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <FraudChart />
-          </div>
-          <div className="lg:col-span-1">
-            <RiskDistribution />
-          </div>
-        </div>
-        <TransactionFeed />
-      </div>
+      <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
+      {activeTab === "dashboard" && <DashboardTab />}
+      {activeTab === "predict" && <PredictionTab />}
+      {activeTab === "assistant" && <AssistantTab />}
     </div>
   );
 };

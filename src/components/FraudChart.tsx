@@ -1,33 +1,30 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
+import { useMemo } from "react";
+import type { Transaction } from "@/lib/transactions";
 
-const data = [
-  { time: "00:00", score: 0.0012 },
-  { time: "02:00", score: 0.0034 },
-  { time: "04:00", score: 0.0021 },
-  { time: "06:00", score: 0.0089 },
-  { time: "08:00", score: 0.0245 },
-  { time: "10:00", score: 0.0567 },
-  { time: "12:00", score: 0.0423 },
-  { time: "14:00", score: 0.0312 },
-  { time: "16:00", score: 0.0891 },
-  { time: "18:00", score: 0.0234 },
-  { time: "20:00", score: 0.0156 },
-  { time: "22:00", score: 0.0078 },
-];
+interface FraudChartProps {
+  transactions: Transaction[];
+}
 
-const FraudChart = () => {
+const FraudChart = ({ transactions }: FraudChartProps) => {
+  const data = useMemo(() => {
+    return transactions
+      .slice(0, 20)
+      .reverse()
+      .map((tx, i) => ({
+        time: tx.timestamp.substring(11, 19),
+        score: tx.probability,
+      }));
+  }, [transactions]);
+
   return (
     <div className="border border-border bg-card p-5 h-full">
       <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase mb-4">
-        Fraud Score Trend — 24h
+        Fraud Score Trend — Live
       </p>
       <ResponsiveContainer width="100%" height={280}>
         <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="hsl(0 0% 10%)"
-            vertical={false}
-          />
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 10%)" vertical={false} />
           <XAxis
             dataKey="time"
             tick={{ fontSize: 10, fontFamily: "JetBrains Mono", fill: "hsl(0 0% 45%)" }}
