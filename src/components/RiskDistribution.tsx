@@ -1,19 +1,32 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from "recharts";
+import { useData } from "@/hooks/useData";
 
-const data = [
-  { level: "LOW", count: 152840, color: "hsl(160 84% 39%)" },
-  { level: "MED", count: 28450, color: "hsl(38 92% 50%)" },
-  { level: "HIGH", count: 3003, color: "hsl(0 84% 60%)" },
-];
+// Custom tooltip to ensure high-contrast value display
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload || payload.length === 0) return null;
+
+  const entry = payload[0];
+  const count = entry?.value ?? "-";
+
+  return (
+    <div className="bg-[#0b0b0c] border border-border p-3 text-sm" style={{ minWidth: 160 }}>
+      <div className="text-xs text-muted-foreground mb-2">{label}</div>
+      <div className="text-[13px] font-semibold text-white">Transactions : {count}</div>
+    </div>
+  );
+};
 
 const RiskDistribution = () => {
+  const { data } = useData();
+  const riskData = data.riskDistribution;
+
   return (
     <div className="border border-border bg-card p-5 h-full">
       <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase mb-4">
         Risk Distribution
       </p>
       <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={data} layout="vertical" margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+        <BarChart data={riskData} layout="vertical" margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="hsl(0 0% 10%)"
@@ -33,19 +46,9 @@ const RiskDistribution = () => {
             tickLine={false}
             width={45}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(0 0% 4%)",
-              border: "1px solid hsl(0 0% 10%)",
-              borderRadius: 0,
-              fontFamily: "JetBrains Mono",
-              fontSize: 11,
-            }}
-            labelStyle={{ color: "hsl(0 0% 65%)" }}
-            formatter={(value: number) => [value.toLocaleString(), "Transactions"]}
-          />
+          <Tooltip content={<CustomTooltip />} />
           <Bar dataKey="count" barSize={20}>
-            {data.map((entry, index) => (
+            {riskData.map((entry, index) => (
               <Cell key={index} fill={entry.color} />
             ))}
           </Bar>
