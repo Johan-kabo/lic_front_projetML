@@ -1,22 +1,29 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
-import { useData } from "@/hooks/useData";
+import { useMemo } from "react";
+import type { Transaction } from "@/lib/transactions";
 
-const FraudChart = () => {
-  const { data } = useData();
-  const chartData = data.fraudChart;
+interface FraudChartProps {
+  transactions: Transaction[];
+}
 
+const FraudChart = ({ transactions }: FraudChartProps) => {
+  const data = useMemo(() => {
+    return transactions
+      .slice(0, 20)
+      .reverse()
+      .map((tx, i) => ({
+        time: tx.timestamp.substring(11, 19),
+        score: tx.probability,
+      }));
+  }, [transactions]);
   return (
     <div className="border border-border bg-card p-5 h-full">
       <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase mb-4">
-        Fraud Score Trend — 24h
+        Fraud Score Trend — Live
       </p>
       <ResponsiveContainer width="100%" height={280}>
-        <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="hsl(0 0% 10%)"
-            vertical={false}
-          />
+        <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 10%)" vertical={false} />
           <XAxis
             dataKey="time"
             tick={{ fontSize: 10, fontFamily: "JetBrains Mono", fill: "hsl(0 0% 45%)" }}

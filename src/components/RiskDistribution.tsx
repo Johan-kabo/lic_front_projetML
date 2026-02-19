@@ -1,37 +1,30 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from "recharts";
-import { useData } from "@/hooks/useData";
+import { useMemo } from "react";
+import type { Transaction } from "@/lib/transactions";
 
-// Custom tooltip to ensure high-contrast value display
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload || payload.length === 0) return null;
+interface RiskDistributionProps {
+  transactions: Transaction[];
+}
 
-  const entry = payload[0];
-  const count = entry?.value ?? "-";
-
-  return (
-    <div className="bg-[#0b0b0c] border border-border p-3 text-sm" style={{ minWidth: 160 }}>
-      <div className="text-xs text-muted-foreground mb-2">{label}</div>
-      <div className="text-[13px] font-semibold text-white">Transactions : {count}</div>
-    </div>
-  );
-};
-
-const RiskDistribution = () => {
-  const { data } = useData();
-  const riskData = data.riskDistribution;
-
+const RiskDistribution = ({ transactions }: RiskDistributionProps) => {
+  const data = useMemo(() => {
+    const safe = transactions.filter((t) => t.verdict === "SAFE").length;
+    const review = transactions.filter((t) => t.verdict === "REVIEW").length;
+    const fraud = transactions.filter((t) => t.verdict === "FRAUD").length;
+    return [
+      { level: "LOW", count: safe, color: "hsl(160 84% 39%)" },
+      { level: "MED", count: review, color: "hsl(38 92% 50%)" },
+      { level: "HIGH", count: fraud, color: "hsl(0 84% 60%)" },
+    ];
+  }, [transactions]);
   return (
     <div className="border border-border bg-card p-5 h-full">
       <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase mb-4">
         Risk Distribution
       </p>
       <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={riskData} layout="vertical" margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="hsl(0 0% 10%)"
-            horizontal={false}
-          />
+        <BarChart data={data} layout="vertical" margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 10%)" horizontal={false} />
           <XAxis
             type="number"
             tick={{ fontSize: 10, fontFamily: "JetBrains Mono", fill: "hsl(0 0% 45%)" }}
@@ -46,9 +39,9 @@ const RiskDistribution = () => {
             tickLine={false}
             width={45}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip />
           <Bar dataKey="count" barSize={20}>
-            {riskData.map((entry, index) => (
+            {data.map((entry, index) => (
               <Cell key={index} fill={entry.color} />
             ))}
           </Bar>
