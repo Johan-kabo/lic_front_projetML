@@ -1,7 +1,0 @@
-project_id = "gipchtkafhouslytotcx"
-
-[functions.predict]
-verify_jwt = false
-
-[functions.assistant]
-verify_jwt = false
